@@ -1,108 +1,233 @@
-# HR Outreach System v2 🚀
+# HR Outreach Automation Engine
 
-> **Ultimate automated HR outreach system for AI Engineer roles in India**
+A comprehensive TypeScript-based HR outreach automation system with email engine (GWS CLI integration), contact database (SQLite), dynamic templates with skill matching, intelligent scheduling, and analytics tracking.
 
-[![GitHub Actions](https://github.com/mk-knight23/hr-outreach-system-v2/workflows/HR%20Outreach%20Automation/badge.svg)](https://github.com/mk-knight23/hr-outreach-system-v2/actions)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+## Features
 
-## 🎯 What This Does
+- **📧 Email Engine**: Send emails via Google Workspace (gws CLI) with rate limiting and batch processing
+- **👥 Contact Database**: SQLite-based contact management with skill-based filtering
+- **📝 Dynamic Templates**: Skill-matched email templates with variable substitution
+- **⏰ Smart Scheduler**: Optimal send time calculation based on historical data
+- **📊 Analytics Tracker**: Comprehensive campaign metrics and engagement tracking
 
-- **Research**: Finds genuine HR/recruiter contacts from recent job postings
-- **Personalize**: Creates tailored emails based on job requirements
-- **Send**: Automated email campaigns via Google Workspace CLI
-- **Track**: Monitors replies and engagement
-- **Optimize**: Continuously improves based on response rates
-
-## 🏗️ System Architecture
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                  GitHub Actions (24/7)                  │
-└────────────────────┬────────────────────────────────────┘
-                     │
-        ┌────────────┴────────────┐
-        │                         │
-┌───────▼────────┐      ┌────────▼────────┐
-│  Research      │      │  Email Engine   │
-│  (Find HRs)    │      │  (gws CLI)      │
-└───────┬────────┘      └────────┬────────┘
-        │                         │
-        └────────────┬────────────┘
-                     │
-            ┌────────▼────────┐
-            │   Database      │
-            │  (SQLite)       │
-            └─────────────────┘
-```
-
-## 📊 Current Status
-
-| Metric | Target | Status |
-|--------|--------|--------|
-| HR Contacts | 50+ | 🔄 Building |
-| Emails/Day | 100 | 🔄 Setting up |
-| Reply Rate | 10%+ | 🔄 Tracking |
-| Uptime | 24/7 | 🔄 Configuring |
-
-## 🚀 Quick Start
+## Quick Start
 
 ```bash
-# 1. Clone
-git clone https://github.com/mk-knight23/hr-outreach-system-v2.git
-cd hr-outreach-system-v2
-
-# 2. Install dependencies
+# Install dependencies
 npm install
 
-# 3. Setup environment
-cp .env.example .env
-# Edit .env with your details
-
-# 4. Build
+# Build the project
 npm run build
 
-# 5. Initialize database
-npm run db:migrate
+# Initialize the database
+npm run db:init
 
-# 6. Run
-npm start
+# Or use the CLI
+node dist/cli.js init
 ```
 
-## 📧 Email Templates
+## Usage
 
-The system includes smart templates that adapt based on:
-- Job requirements
-- Company culture
-- Your matching skills
-- Recent company news
+### Basic Usage
 
-## 🤖 Automation Schedule
+```typescript
+import { CampaignManager, initializeSystem } from './dist/index.js';
 
-- **Research**: Every 2 hours (find new job postings)
-- **Send**: Every 2 hours during business hours (9 AM - 6 PM IST)
-- **Follow-up**: Days 3, 7, 14
-- **Analytics**: Daily reports
+// Initialize
+await initializeSystem();
 
-## 📈 Analytics
+// Create manager
+const manager = new CampaignManager();
 
-Track:
-- Emails sent
-- Open rates
-- Reply rates
-- Conversion to interviews
+// Import contacts
+const contacts = await manager.importContacts([
+  {
+    email: 'john.doe@example.com',
+    firstName: 'John',
+    lastName: 'Doe',
+    skills: ['JavaScript', 'React', 'Node.js'],
+    experienceYears: 5,
+    source: 'linkedin',
+    status: 'new',
+    priority: 'high'
+  }
+]);
 
-## 🔧 Tech Stack
+// Create templates
+const template = await manager.createTemplate({
+  name: 'Engineering Outreach',
+  subject: 'Exciting opportunity at {{companyName}}',
+  body: `Hi {{firstName}},
 
-- **Language**: TypeScript
-- **Email**: Google Workspace CLI (gws)
-- **Database**: SQLite
-- **Automation**: GitHub Actions
-- **Monitoring**: Winston logging
+I noticed your experience with {{skills}}...`,
+  type: 'initial',
+  requiredSkills: ['JavaScript', 'React'],
+  tone: 'casual',
+  placeholders: ['firstName', 'skills', 'companyName']
+});
 
-## 📝 License
+// Send emails
+const result = await manager.sendToContacts(
+  [contactId],
+  template.id,
+  {
+    senderName: 'Jane Smith',
+    senderTitle: 'Talent Acquisition',
+    companyName: 'Tech Corp',
+    jobTitle: 'Senior Engineer'
+  }
+);
+```
 
-MIT License - see [LICENSE](LICENSE)
+### CLI Usage
 
----
+```bash
+# List contacts
+node dist/cli.js contacts:list --status new --skills "JavaScript,React"
 
-**Built with ❤️ by the 60-repo empire**
+# Show contact statistics
+node dist/cli.js contacts:stats
+
+# List templates
+node dist/cli.js templates:list
+
+# Create default templates
+node dist/cli.js templates:defaults
+
+# Create a campaign
+node dist/cli.js campaign:create \
+  --name "Senior Engineers Q1" \
+  --skills "Python,Machine Learning" \
+  --daily-limit 50
+
+# Process scheduled emails
+node dist/cli.js send:scheduled --batch-size 10
+
+# View analytics
+node dist/cli.js analytics:dashboard
+```
+
+## Project Structure
+
+```
+hr-outreach-system-v2/
+├── src/
+│   ├── types/           # TypeScript type definitions
+│   ├── database/        # SQLite database and repositories
+│   │   ├── init.ts      # Database initialization
+│   │   └── contacts.ts  # Contact repository
+│   ├── email/           # Email engine
+│   │   ├── engine.ts    # GWS CLI integration
+│   │   └── logRepository.ts
+│   ├── templates/       # Template engine
+│   │   └── engine.ts    # Skill matching & rendering
+│   ├── scheduler/       # Scheduling engine
+│   │   └── engine.ts    # Optimal send time calculation
+│   ├── analytics/       # Analytics tracking
+│   │   └── tracker.ts   # Metrics & reporting
+│   ├── utils/           # Utility functions
+│   ├── campaignManager.ts  # Main orchestrator
+│   ├── cli.ts           # CLI interface
+│   └── index.ts         # Main exports
+├── config/              # Configuration files
+├── data/                # SQLite database (created at runtime)
+├── package.json
+└── tsconfig.json
+```
+
+## Database Schema
+
+### Tables
+
+- **contacts** - Candidate information with skills and status
+- **email_templates** - Reusable email templates with skill matching
+- **email_campaigns** - Campaign configuration and targeting
+- **email_logs** - Email send history and tracking
+- **scheduled_emails** - Pending scheduled sends
+- **analytics** - Daily aggregated metrics
+- **send_time_optimization** - Hourly performance data
+
+## Template Variables
+
+Available placeholders for email templates:
+
+| Variable | Description |
+|----------|-------------|
+| `{{firstName}}` | Contact's first name |
+| `{{lastName}}` | Contact's last name |
+| `{{fullName}}` | Full name |
+| `{{email}}` | Email address |
+| `{{company}}` | Current company |
+| `{{title}}` | Job title |
+| `{{location}}` | Location |
+| `{{experienceYears}}` | Years of experience |
+| `{{skills}}` | Comma-separated skills |
+| `{{senderName}}` | Your name |
+| `{{senderTitle}}` | Your title |
+| `{{companyName}}` | Hiring company |
+| `{{jobTitle}}` | Position |
+| `{{jobDescription}}` | Job description |
+
+## API Reference
+
+### CampaignManager
+
+Main orchestrator class that ties all components together.
+
+```typescript
+class CampaignManager {
+  // Contacts
+  importContacts(contacts): Contact[]
+  findContacts(filters): Contact[]
+  
+  // Templates
+  createTemplate(template): EmailTemplate
+  getBestTemplateForContact(contact): EmailTemplate | null
+  setupDefaultTemplates(): EmailTemplate[]
+  
+  // Campaigns
+  createCampaign(config): { campaignId, contactsCount, scheduledCount }
+  
+  // Sending
+  sendToContacts(contactIds, templateId, variables, options): Promise<results>
+  processScheduledEmails(batchSize): Promise<{ processed, successful, failed }>
+  
+  // Analytics
+  getDashboardSummary(): DashboardSummary
+  getCampaignSummary(campaignId?): CampaignSummary
+  getTrends(days?): TrendData[]
+}
+```
+
+## Configuration
+
+### GWS CLI Setup
+
+Ensure `gws` CLI is installed and configured:
+
+```bash
+# Verify GWS is available
+gws --version
+
+# Configure profile (if needed)
+gws auth login --profile default
+```
+
+### Environment Variables
+
+Optional environment variables:
+
+```bash
+# Database path (default: ./data/hr_outreach.db)
+DB_PATH=/path/to/database.db
+
+# GWS CLI profile
+GWS_PROFILE=default
+
+# Default timezone
+DEFAULT_TIMEZONE=America/New_York
+```
+
+## License
+
+MIT

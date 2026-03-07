@@ -1,0 +1,11 @@
+{
+  "name": "AI Engineer Outreach",
+  "subject": "AI Engineering role at {{companyName}} - {{jobTitle}}",
+  "body": "Hi {{firstName}},\n\nI hope this email finds you well. My name is {{senderName}}, and I'm {{senderTitle}} at {{companyName}}.\n\nI came across your profile and was impressed by your {{experienceYears}} years of experience in {{skills}}. We're currently looking for talented {{jobTitle}} professionals to join our team.\n\n{{jobDescription}}\n\nWould you be open to a brief conversation about this opportunity? I'd love to learn more about your career goals and share details about the role.\n\nBest regards,\n{{senderName}}\n{{senderTitle}}\n{{companyName}}",
+  "type": "initial",
+  "requiredSkills": ["Python", "Machine Learning", "AI"],
+  "minExperienceYears": 4,
+  "maxExperienceYears": 10,
+  "tone": "formal",
+  "placeholders": ["firstName", "experienceYears", "skills", "senderName", "senderTitle", "companyName", "jobTitle", "jobDescription"]
+}

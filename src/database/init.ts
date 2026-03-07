@@ -3,6 +3,7 @@
  */
 import Database from 'better-sqlite3';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -162,7 +163,6 @@ let dbInstance: Database.Database | null = null;
 
 export function getDatabase(): Database.Database {
   if (!dbInstance) {
-    const fs = await import('fs');
     const dataDir = path.dirname(DB_PATH);
     if (!fs.existsSync(dataDir)) {
       fs.mkdirSync(dataDir, { recursive: true });

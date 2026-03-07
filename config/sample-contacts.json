@@ -1,0 +1,45 @@
+[
+  {
+    "email": "john.doe@example.com",
+    "firstName": "John",
+    "lastName": "Doe",
+    "company": "TechCorp",
+    "title": "Senior Software Engineer",
+    "linkedinUrl": "https://linkedin.com/in/johndoe",
+    "skills": ["JavaScript", "React", "Node.js", "TypeScript"],
+    "experienceYears": 5,
+    "location": "San Francisco, CA",
+    "source": "linkedin",
+    "status": "new",
+    "priority": "high",
+    "notes": "React expert, interested in AI roles"
+  },
+  {
+    "email": "jane.smith@example.com",
+    "firstName": "Jane",
+    "lastName": "Smith",
+    "company": "DataSystems",
+    "title": "Machine Learning Engineer",
+    "linkedinUrl": "https://linkedin.com/in/janesmith",
+    "skills": ["Python", "TensorFlow", "PyTorch", "Machine Learning"],
+    "experienceYears": 7,
+    "location": "New York, NY",
+    "source": "github",
+    "status": "new",
+    "priority": "high",
+    "notes": "PhD in CS, strong ML background"
+  },
+  {
+    "email": "bob.wilson@example.com",
+    "firstName": "Bob",
+    "lastName": "Wilson",
+    "company": "StartupXYZ",
+    "title": "Full Stack Developer",
+    "skills": ["JavaScript", "Vue.js", "Node.js", "MongoDB"],
+    "experienceYears": 3,
+    "location": "Austin, TX",
+    "source": "referral",
+    "status": "new",
+    "priority": "medium"
+  }
+]

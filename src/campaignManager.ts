@@ -2,6 +2,7 @@
  * Campaign Manager - Orchestrates the HR Outreach System
  */
 import Database from 'better-sqlite3';
+import { randomUUID } from 'crypto';
 import { getDatabase } from './database/init.js';
 import { ContactRepository } from './database/contacts.js';
 import { EmailEngine, SendResult } from './email/engine.js';
@@ -92,7 +93,7 @@ export class CampaignManager {
   // ==================== Campaign Creation ====================
   
   createCampaign(config: CampaignConfig): { campaignId: string; contactsCount: number; scheduledCount: number } {
-    const campaignId = crypto.randomUUID();
+    const campaignId = randomUUID();
     const now = new Date().toISOString();
     
     // Insert campaign record
