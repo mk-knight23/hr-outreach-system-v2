@@ -1,0 +1,42 @@
+{
+  "name": "hr-outreach-system-v2",
+  "version": "2.0.0",
+  "description": "Ultimate automated HR outreach system for AI Engineer roles",
+  "main": "dist/engine.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/engine.js",
+    "dev": "ts-node src/engine.ts",
+    "research": "ts-node src/scraper/research.ts",
+    "send": "ts-node src/email/send-campaign.ts",
+    "analytics": "ts-node src/analytics/report.ts",
+    "test:email": "ts-node src/email/test-send.ts",
+    "db:migrate": "ts-node src/database/migrate.ts",
+    "cron:start": "ts-node src/scheduler/cron-start.ts",
+    "setup": "npm run build && npm run db:migrate"
+  },
+  "keywords": [
+    "hr-outreach",
+    "job-search",
+    "automation",
+    "gmail-api",
+    "ai-engineer"
+  ],
+  "author": "Musharraf Kazi",
+  "license": "MIT",
+  "dependencies": {
+    "sqlite3": "^5.1.6",
+    "node-cron": "^3.0.3",
+    "axios": "^1.6.0",
+    "cheerio": "^1.0.0-rc.12",
+    "dotenv": "^16.3.1",
+    "winston": "^3.11.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.8.0",
+    "@types/node-cron": "^3.0.11",
+    "typescript": "^5.2.2",
+    "ts-node": "^10.9.1"
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "name": "Kazi Musharraf",
+  "role": "AI Engineer & Full-Stack Developer",
+  "email": "mk.knight970@gmail.com",
+  "phone": "+91-XXXXXXXXXX",
+  "linkedin": "linkedin.com/in/kazi-musharraf",
+  "github": "github.com/mk-knight23",
+  "portfolio": "https://www.mkazi.live",
+  
+  "summary": "AI Organization Architect with 6+ years experience building autonomous systems. Created 60+ AI repositories, 134-agent army, and RALPH v2.0 evolution loop.",
+  
+  "skills": [
+    "AI/ML Engineering",
+    "Multi-Agent Systems",
+    "LangGraph / LangChain",
+    "TypeScript / Node.js",
+    "Python / FastAPI",
+    "React 19 / Next.js",
+    "Cloud Infrastructure (AWS/GCP/Azure)",
+    "Docker / Kubernetes",
+    "System Architecture",
+    "Autonomous Workflows"
+  ],
+  
+  "experience": [
+    {
+      "title": "Software Developer",
+      "company": "Wipro",
+      "duration": "2+ years",
+      "location": "India"
+    }
+  ],
+  
+  "highlights": [
+    "Built 60+ AI-powered repositories with autonomous evolution",
+    "Created 134-agent army for automated operations",
+    "Implemented RALPH v2.0 6-phase evolution loop",
+    "Deployed 600+ live services across 10 platforms",
+    "Expert in LangGraph, LangChain, and multi-agent orchestration"
+  ],
+  
+  "target_roles": ["AI Engineer", "ML Engineer", "AI Architect", "Full-Stack AI Developer"],
+  "target_locations": ["Bangalore", "Hyderabad", "Remote"],
+  "expected_salary": "₹25-50 LPA",
+  "notice_period": "30 days"
+}

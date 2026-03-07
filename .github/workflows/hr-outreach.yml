@@ -1,0 +1,95 @@
+name: HR Outreach Automation
+
+on:
+  schedule:
+    # Run every 2 hours during business hours (IST)
+    - cron: '0 4,6,8,10,12,14 * * *'  # 9:30, 11:30, 13:30, 15:30, 17:30, 19:30 IST
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Run mode'
+        required: true
+        default: 'normal'
+        type: choice
+        options:
+          - normal
+          - research-only
+          - send-only
+          - analytics
+
+jobs:
+  hr-outreach:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build TypeScript
+      run: npm run build
+      
+    - name: Setup gws CLI
+      run: |
+        npm install -g @googleworkspace/cli
+        echo '${{ secrets.GWS_CLIENT_SECRET }}' > ~/.config/gws/client_secret.json
+        gws auth login --scopes gmail --non-interactive || true
+      
+    - name: Restore database
+      uses: actions/cache@v3
+      with:
+        path: database/contacts.db
+        key: hr-contacts-db-${{ github.run_id }}
+        restore-keys: |
+          hr-contacts-db-
+          
+    - name: Initialize database
+      run: npm run db:migrate
+      
+    - name: Run Research (Find new HR contacts)
+      if: github.event.inputs.mode == 'research-only' || github.event.inputs.mode == 'normal'
+      run: npm run research
+      env:
+        LOG_LEVEL: info
+        
+    - name: Send Email Campaign
+      if: github.event.inputs.mode == 'send-only' || github.event.inputs.mode == 'normal'
+      run: npm run send
+      env:
+        DAILY_EMAIL_LIMIT: 100
+        LOG_LEVEL: info
+        
+    - name: Generate Analytics
+      if: github.event.inputs.mode == 'analytics' || github.event.inputs.mode == 'normal'
+      run: npm run analytics
+      
+    - name: Save database
+      uses: actions/cache@v3
+      with:
+        path: database/contacts.db
+        key: hr-contacts-db-${{ github.run_id }}
+        
+    - name: Upload logs
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: outreach-logs-${{ github.run_id }}
+        path: logs/
+        retention-days: 30
+        
+    - name: Commit updates
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add research/ analytics/reports/
+        git diff --quiet && git diff --staged --quiet || git commit -m "Update HR contacts and analytics [$(date +%Y-%m-%d-%H:%M)]"
+        git push
+      continue-on-error: true
