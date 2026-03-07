@@ -1,0 +1,37 @@
+{
+  "leads": [
+    {
+      "company_name": "Google",
+      "hr_email": "careers@google.com",
+      "hr_name": "Google Recruiting",
+      "job_title": "Data Scientist, Research Cloud",
+      "location": "Bengaluru, Karnataka",
+      "job_url": "https://careers.google.com/jobs",
+      "source": "LinkedIn",
+      "status": "NEW",
+      "notes": "Posted 2 weeks ago - Tier 1 target"
+    },
+    {
+      "company_name": "IBM India",
+      "hr_email": "careers@ibm.com",
+      "hr_name": "IBM HR Team",
+      "job_title": "Data Scientist - AI",
+      "location": "Chennai, Tamil Nadu",
+      "job_url": "https://www.ibm.com/careers",
+      "source": "LinkedIn",
+      "status": "NEW",
+      "notes": "Posted recently - Immediate apply"
+    },
+    {
+      "company_name": "Adobe",
+      "hr_email": "careers@adobe.com",
+      "hr_name": "Adobe Recruiting",
+      "job_title": "ML Platform Engineer",
+      "location": "Bengaluru, Karnataka",
+      "job_url": "https://careers.adobe.com",
+      "source": "LinkedIn",
+      "status": "NEW",
+      "notes": "Product company - High priority"
+    }
+  ]
+}

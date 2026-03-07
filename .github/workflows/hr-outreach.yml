@@ -1,95 +1,155 @@
 name: HR Outreach Automation
 
 on:
+  # Run every 6 hours for 24/7 operation
   schedule:
-    # Run every 2 hours during business hours (IST)
-    - cron: '0 4,6,8,10,12,14 * * *'  # 9:30, 11:30, 13:30, 15:30, 17:30, 19:30 IST
+    - cron: '0 */6 * * *'
+  
+  # Manual trigger
   workflow_dispatch:
     inputs:
-      mode:
-        description: 'Run mode'
+      action:
+        description: 'Action to run'
         required: true
-        default: 'normal'
+        default: 'full'
         type: choice
         options:
-          - normal
-          - research-only
-          - send-only
-          - analytics
+          - full
+          - scrape
+          - outreach
+          - followup
+          - replies
+          - stats
+      dry_run:
+        description: 'Dry run (no emails sent)'
+        required: false
+        default: false
+        type: boolean
+
+# Prevent concurrent runs
+concurrency:
+  group: hr-outreach
+  cancel-in-progress: false
 
 jobs:
-  hr-outreach:
+  outreach:
     runs-on: ubuntu-latest
     
+    permissions:
+      contents: read
+      
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
       
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        cache: 'npm'
-        
-    - name: Install dependencies
-      run: npm ci
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
       
-    - name: Build TypeScript
-      run: npm run build
+      - name: Install Python dependencies
+        run: |
+          pip install -r requirements.txt
       
-    - name: Setup gws CLI
-      run: |
-        npm install -g @googleworkspace/cli
-        echo '${{ secrets.GWS_CLIENT_SECRET }}' > ~/.config/gws/client_secret.json
-        gws auth login --scopes gmail --non-interactive || true
+      - name: Install gws CLI
+        run: |
+          # Install gws CLI (Google Workspace CLI)
+          curl -fsSL https://raw.githubusercontent.com/googleworkspace/cli/main/install.sh | bash
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
       
-    - name: Restore database
-      uses: actions/cache@v3
-      with:
-        path: database/contacts.db
-        key: hr-contacts-db-${{ github.run_id }}
-        restore-keys: |
-          hr-contacts-db-
+      - name: Configure gws authentication
+        env:
+          GWS_CREDENTIALS: ${{ secrets.GWS_CREDENTIALS }}
+        run: |
+          # Write service account credentials
+          if [ -n "$GWS_CREDENTIALS" ]; then
+            echo "$GWS_CREDENTIALS" > $HOME/gws-credentials.json
+            echo "GOOGLE_APPLICATION_CREDENTIALS=$HOME/gws-credentials.json" >> $GITHUB_ENV
+          else
+            echo "⚠️ GWS_CREDENTIALS not set - using interactive auth if available"
+          fi
+      
+      - name: Verify gws installation
+        run: |
+          gws --version || echo "gws not in PATH, checking..."
+          which gws || ls -la ~/.local/bin/ || echo "gws binary not found"
+      
+      - name: Run outreach automation
+        env:
+          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+        run: |
+          ACTION="${{ github.event.inputs.action || 'full' }}"
+          DRY_RUN_FLAG=""
           
-    - name: Initialize database
-      run: npm run db:migrate
+          if [ "${{ github.event.inputs.dry_run }}" == "true" ]; then
+            DRY_RUN_FLAG="--dry-run"
+          fi
+          
+          echo "Running action: $ACTION"
+          python scripts/run_outreach.py --action $ACTION --spreadsheet-id "$SPREADSHEET_ID" $DRY_RUN_FLAG
       
-    - name: Run Research (Find new HR contacts)
-      if: github.event.inputs.mode == 'research-only' || github.event.inputs.mode == 'normal'
-      run: npm run research
-      env:
-        LOG_LEVEL: info
-        
-    - name: Send Email Campaign
-      if: github.event.inputs.mode == 'send-only' || github.event.inputs.mode == 'normal'
-      run: npm run send
-      env:
-        DAILY_EMAIL_LIMIT: 100
-        LOG_LEVEL: info
-        
-    - name: Generate Analytics
-      if: github.event.inputs.mode == 'analytics' || github.event.inputs.mode == 'normal'
-      run: npm run analytics
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: outreach-logs-${{ github.run_id }}
+          path: |
+            *.log
+            data/*.json
+          retention-days: 7
       
-    - name: Save database
-      uses: actions/cache@v3
-      with:
-        path: database/contacts.db
-        key: hr-contacts-db-${{ github.run_id }}
-        
-    - name: Upload logs
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: outreach-logs-${{ github.run_id }}
-        path: logs/
-        retention-days: 30
-        
-    - name: Commit updates
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git add research/ analytics/reports/
-        git diff --quiet && git diff --staged --quiet || git commit -m "Update HR contacts and analytics [$(date +%Y-%m-%d-%H:%M)]"
-        git push
-      continue-on-error: true
+      - name: Send notification on failure
+        if: failure()
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {
+              "text": "⚠️ HR Outreach Automation Failed",
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "HR Outreach Automation Failed"
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Repository:*\n${{ github.repository }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Workflow:*\n${{ github.workflow }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Run ID:*\n${{ github.run_id }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Time:*\n$(date)"
+                    }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "View Logs"
+                      },
+                      "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        continue-on-error: true
