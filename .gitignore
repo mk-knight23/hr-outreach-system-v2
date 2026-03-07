@@ -27,3 +27,10 @@ ENV/
 data/leads_private.json
 credentials.json
 gws-credentials.json
+
+# Secrets
+client_secret.json
+credentials.json
+credentials.enc
+.env
+
